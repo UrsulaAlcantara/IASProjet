@@ -2,7 +2,7 @@ import csv
 import pandas_datareader as web
 import yfinance as yf 
 import sys
-
+nInit=0
 ## Tableau de symboles
 def symbol_extract(filename):
     
@@ -24,24 +24,37 @@ def symbol_extract(filename):
 
 ## Dictionnaire de données (pas optimal, à changer)
 Symboles= symbol_extract("symboles.csv")
-with open('dataset.csv','w', newline='') as wfile:
+with open('testdataset.csv','w', newline='') as wfile:
+    #with open('newsymboles.csv','w',newline='') as Symbfile:
     writer = csv.writer(wfile)
-    
+    #swriter = csv.writer(Symbfile)
+        
     Data = {}
     errorList = []
     i = 0 
     for s in Symboles:
+        if i >40:
+            print("DONE")
+            break
         try :
             
     
             #values = web.DataReader(s[1], 'yahoo', '1/1/2021')
             sf = yf.Ticker(s[1])
             donnees = ''
-            for _ , d in sf.info.items():
-                donnees+=str(d)+';'
+            for name , d in sf.info.items():
+                if i ==0: print(name)
+                if name == 'logo_url': donnees+=str(d)
+                else:  donnees+=str(d)+';'
             
             #Data[s[1]] = [values, sf.info]
-            writer.writerow([donnees]) 
+            if donnees != '': 
+                writer.writerow([donnees])
+                print(s[1])
+            else:
+                errorList.append(s[1])
+    #        swriter.writerow([s[1]])
+
             i+=1
             print(i)
             if(i %25 ==0 ) :
@@ -59,6 +72,7 @@ with open('dataset.csv','w', newline='') as wfile:
             Symboles.remove(s)
     nFinal = len(Symboles)
     print(f"Taille final des données: {nFinal} ({nInit/nFinal })")
+    print(f"Les symboles non enregistrés sont {errorList}")
 
     
 
