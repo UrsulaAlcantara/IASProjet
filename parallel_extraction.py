@@ -46,11 +46,17 @@ def get_data(table, nbT):
                 sf= yf.Ticker(s[1])
                 donnees=''
                 for name , d in sf.info.items():
-                    if name == 'lofo_url' : donnees+=str(d)
-                    else: donnees+= str(d)+';'
-                    if donnees!='':
-                        writer.writerow([donnees])
-                    i+=1 
+                    #if name == 'logo_url' : donnees+=str(d)
+                    donnees+= str(d)+'; '
+
+                if donnees!='':
+                    donnees = donnees.replace('\n',' ')
+                    writer.writerow([donnees])
+                else:
+                    nTable.remove(s)
+                i+=1 
+                if (i%100==0):
+                    print(f'More: {i}')
                                      
             except web._utils.RemoteDataError :
                 #print('Unable to read data from symbol {0}'.format(s[1]))
@@ -76,6 +82,7 @@ def main():
     #print(s1) 
     #for k , st in enumerate( Sj ):A
     for k, st in enumerate(Sj):
+        """Partie de parallélisation"""
         pool.apply_async(get_data, args=(st,k),callback= collect)
         #results.append(pool.apply(get_data, args= (st,k)))
         #results=[pool.apply(get_data, args=(st, k)) for k, st in enumerate (Sj)]
@@ -84,8 +91,19 @@ def main():
     print(" !!!!! END !!!!!!!")
 
     results.sort(key=lambda x: x[0])
-    results_final = [r for i, r in results]
+    results_p = [i for i, r in results]
+    listS =  [r for i, r in results]
+
+    results_final=[]
+    for k in listS:
+        results_final.append(results_p[k])     
+    #    with open ('dataset.csv','w', newline = '') as nfile:
+                
+
+
+
     finalSymbol(results_final)
+    
 
 
 if __name__== "__main__":
