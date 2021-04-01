@@ -15,7 +15,7 @@ def symbol_extract(filename):
             if line == 0: 
                 line+=1
             else :
-                Symboles.append([i[0],i[1]])
+                Symboles.append(i[0])
                 line+=1
     nInit = len(Symboles)
     print("Nombre de symboles:",nInit)
@@ -43,15 +43,15 @@ def get_data(table, nbT):
         writer = csv.writer(nfile)
         for s in table:
             try: 
-                sf= yf.Ticker(s[1])
+                sf= yf.Ticker(s)
                 donnees=''
                 for name , d in sf.info.items():
-                    #if name == 'logo_url' : donnees+=str(d)
-                    donnees+= str(d)+'; '
+                    if name == 'logo_url' : donnees+=str(d)
+                    else: donnees+= str(d)+'; '
 
                 if donnees!='':
                     donnees = donnees.replace('\n',' ')
-                    writer.writerow([donnees])
+                    writer.writerow([s+'; '+donnees])
                 else:
                     nTable.remove(s)
                 i+=1 
@@ -90,19 +90,19 @@ def main():
     pool.join()
     print(" !!!!! END !!!!!!!")
 
-    results.sort(key=lambda x: x[0])
-    results_p = [i for i, r in results]
-    listS =  [r for i, r in results]
+    #results.sort(key=lambda x: x[0])
+    #results_p = [i for i, r in results]
+    #listS =  [r for i, r in results]
 
-    results_final=[]
-    for k in listS:
-        results_final.append(results_p[k])     
+    #results_final=[]
+    #for k in listS:
+    #    results_final.append(results_p[k])     
     #    with open ('dataset.csv','w', newline = '') as nfile:
                 
 
 
 
-    finalSymbol(results_final)
+    #finalSymbol(results_final)
     
 
 
