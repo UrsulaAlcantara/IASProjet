@@ -2,8 +2,8 @@ import yahoo_finance from "yahoo-finance2";
 import fs = require("fs");
 import parse = require("csv-parse/lib/sync.js");
 
-const SYMBOL_FILE_NAME = "./symboles.csv";
-const RESULT_FILE_NAME = "./dataset.csv";
+const SYMBOL_FILE_NAME = "./symbols.csv";
+const RESULT_FILE_NAME = "./info_data.csv";
 
 const get_csv = (filename) => {
   const file_text = fs.readFileSync(filename, {
@@ -14,6 +14,7 @@ const get_csv = (filename) => {
   const csv = parse(file_text, {
     columns: true,
     skip_empty_lines: true,
+    delimiter: ";",
   });
 
   return csv;
@@ -26,19 +27,12 @@ const get_symbols = (filename) => {
 const get_columns = () => {
   return [
     "symbol",
-    "address1",
-    "address2",
-    "city",
+    "longName",
     "state",
-    "zip",
     "country",
-    "phone",
-    "fax",
-    "website",
     "industry",
     "sector",
     "fullTimeEmployees",
-    "maxAge",
   ];
 };
 
@@ -52,18 +46,23 @@ const get_info = async (symbol) => {
   const info = await yahoo_finance.quoteSummary(
     symbol,
     {
-      modules: ["summaryProfile"],
+      modules: ["summaryProfile", "price"],
     },
     { validateResult: false }
   );
-  return { symbol, ...info.summaryProfile };
+
+  return {
+    symbol,
+    ...info.summaryProfile,
+    ...info.price,
+  };
 };
 
 const get_row_text = (info, columns) => {
   let row = "";
   for (const key of columns) {
     if (info[key]) {
-      row += String(info[key]);
+      row += String(info[key]).replace(/;|\n/g, "");
     }
     row += ";";
   }
