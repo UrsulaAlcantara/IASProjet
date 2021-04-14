@@ -6,9 +6,9 @@ SYMBOLS_FILE = "symbols.csv"
 DATASET_FILE = "dataset.csv"
 
 
-def get_financial_data(start):
+def get_financial_data(start, days=2):
     end = (datetime.date.fromisoformat(start) +
-           datetime.timedelta(days=2)).isoformat()
+           datetime.timedelta(days=days)).isoformat()
 
     symbols_df = pd.read_csv(SYMBOLS_FILE, sep=";")
     symbols_array = symbols_df["upper_case"].values
@@ -16,12 +16,16 @@ def get_financial_data(start):
     sentence = " ".join(symbols_array)
     data = yf.download(sentence, start=start, end=end, group_by="ticker")
 
-    data = [data.iloc[i].unstack(level=1) for i in range(2)]
-    data = data[0].join(data[1], lsuffix='0', rsuffix='1')
+    data = [data.iloc[i].unstack(level=1).add_suffix(str(i))
+            for i in range(days)]
 
-    data.index = data.index.set_names('symbol')
+    result = data[0]
+    for i in range(1, days):
+        result = result.join(data[i])
 
-    return data
+    result.index = result.index.set_names('symbol')
+
+    return result
 
 
 def main():
