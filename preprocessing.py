@@ -36,8 +36,8 @@ def get_normalized_volume(dataset):
 
 
 def preprocessing(dataset):
-    dataset = dataset.dropna(subset=['Open0', 'High0', 'Low0', 'Close0', 'Adj Close0',
-                                     'Volume0', 'Open1', 'High1', 'Low1', 'Close1', 'Adj Close1', 'Volume1']).reset_index()
+    dataset = dataset.dropna(subset=['Open0', 'High0', 'Low0', 'Close0',
+                                     'Volume0', 'Open1', 'Close1']).reset_index()
 
     onehot_data = get_onehot_data(dataset)
     var_data = get_var_data(dataset)

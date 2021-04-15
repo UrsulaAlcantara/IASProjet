@@ -1,14 +1,16 @@
 import yfinance as yf
 import pandas as pd
 import datetime
+import random
+random.seed()
 
 SYMBOLS_FILE = "symbols.csv"
 DATASET_FILE = "dataset.csv"
 
 
-def get_financial_data(start, days=2):
-    end = (datetime.date.fromisoformat(start) +
-           datetime.timedelta(days=days)).isoformat()
+def get_financial_data(start_date, days=2):
+    start = start_date.isoformat()
+    end = (start_date + datetime.timedelta(days=days)).isoformat()
 
     symbols_df = pd.read_csv(SYMBOLS_FILE, sep=";")
     symbols_array = symbols_df["upper_case"].values
@@ -20,6 +22,10 @@ def get_financial_data(start, days=2):
             for i in range(days)]
 
     result = data[0]
+    result["day"] = start_date.day
+    result["month"] = start_date.month
+    result["year"] = start_date.year
+
     for i in range(1, days):
         result = result.join(data[i])
 
@@ -28,11 +34,32 @@ def get_financial_data(start, days=2):
     return result
 
 
+def get_n_days_random_financial_data(n):
+    print("-----------------{} restants--------------{}".format(n, datetime.datetime.now().time()))
+
+    start_date = datetime.date(2020, 1, 1)
+
+    result = None
+    try:
+        result = get_financial_data(
+            start_date + datetime.timedelta(random.randint(0, 365)))
+    except IndexError:
+        print("Error")
+        return get_n_days_random_financial_data(n)
+
+    if (n > 0):
+        return result.append(get_n_days_random_financial_data(n - 1))
+
+    return result
+
+
 def main():
     info_data = pd.read_csv("info_data.csv", sep=";").set_index("symbol")
-    financial_data = get_financial_data("2021-02-01")
+    financial_data = get_n_days_random_financial_data(20)
 
     dataset = info_data.join(financial_data)
+
+    print(dataset.info())
 
     dataset.to_csv("dataset.csv", sep=";")
 
