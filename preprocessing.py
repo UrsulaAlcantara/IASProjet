@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 
 
@@ -35,26 +36,52 @@ def get_normalized_volume(dataset):
     return normalized_volume
 
 
-def preprocessing(dataset):
-    dataset = dataset.dropna(subset=['Open0', 'High0', 'Low0', 'Close0',
-                                     'Volume0', 'Open1', 'Close1']).reset_index()
+def get_normalized_date(dataset):
+    normalized_day = dataset["day"] / 31
+    normalized_month = dataset["month"] / 12
 
+    return pd.DataFrame({"normalized_day": normalized_day, "normalized_month": normalized_month})
+
+
+def preprocessing(dataset):
+    print("Cleaning...")
+    dataset = dataset.dropna(subset=['Open0', 'High0', 'Low0', 'Close0',
+                                     'Volume0', 'Open1', 'Close1']).reset_index().drop_duplicates()
+    print(dataset.info())
+
+    index = dataset[["symbol", "longName"]]
+
+    print("Refactoring...")
     onehot_data = get_onehot_data(dataset)
     var_data = get_var_data(dataset)
     normalized_volume = get_normalized_volume(dataset)
+    normalized_date = get_normalized_date(dataset)
 
-    dataset = onehot_data.join(var_data).join(normalized_volume)
+    dataset = onehot_data.join(var_data).join(
+        normalized_volume).join(normalized_date)
 
     Y = dataset["var1"]
-    X = dataset.drop(columns="var1")
 
-    return X, Y
+    print("PCA...")
+    pca = PCA(n_components=80)
+    X = pca.fit_transform(dataset.drop(columns="var1"))
+
+    print("standardize...")
+    standardizer = StandardScaler()
+    X = standardizer.fit_transform(X)
+
+    X = pd.DataFrame(X)
+
+    return index, X, Y
 
 
 def main():
     dataset = pd.read_csv("dataset.csv", sep=";")
-    X, Y = preprocessing(dataset)
-    print(Y.head(5), X.head())
+    index, X, Y = preprocessing(dataset)
+
+    print(index.head())
+    print(Y.head(5))
+    print(X.head(5))
 
 
 if __name__ == "__main__":
