@@ -2,7 +2,14 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import StandardScaler
-from sklearn.decomposition import PCA
+from sklearn.decomposition import PCA*
+
+# class Preprocessing:
+#     def __init__(self):
+#             self.x = 0
+    
+#     def to_string(self):
+#         print(self)
 
 
 def get_onehot_data(dataset):
