@@ -16,3 +16,13 @@ class Model3(MLPRegressor):
     def __init__(self):
         super().__init__(activation="logistic", hidden_layer_sizes=(
             100, 50, 30, 20), max_iter=150, random_state=0)
+
+
+def main():
+    Model1()
+    Model2()
+    Model3()
+
+
+if __name__ == "__main__":
+    main()

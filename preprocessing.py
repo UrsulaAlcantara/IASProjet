@@ -1,11 +1,14 @@
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import OneHotEncoder
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.decomposition import PCA
 
 
 class Preprocessing:
+    """
+    Preprocessing utility fonction
+    """
+
     def get_onehot_data(self, dataset):
         onehot_data = OneHotEncoder(dtype=int).fit_transform(
             dataset[['state', 'country', 'industry', 'sector']])
@@ -44,6 +47,10 @@ class Preprocessing:
 
 class Preprocessing1(Preprocessing):
     def get(self, dataset):
+        """
+        Preprocessing pipeline
+        """
+
         print("Cleaning...")
         dataset = dataset.dropna(subset=['Open0', 'High0', 'Low0', 'Close0',
                                          'Volume0', 'Open1', 'Close1']).reset_index().drop_duplicates()
